@@ -218,7 +218,7 @@ public class SlidingLayout extends FrameLayout{
                     //判断是否是上拉操作
                     final float yDiff = y - mInitialDownY;
                     if (yDiff > mTouchSlop && !mIsBeingDragged && !canChildScrollUp()) {
-                        mInitialMotionY = mInitialDownY + mTouchSlop;
+                        mInitialMotionY = mInitialDownY + yDiff;
                         mLastMotionY = mInitialMotionY;
                         mIsBeingDragged = true;
                     }
@@ -226,7 +226,7 @@ public class SlidingLayout extends FrameLayout{
                     //判断是否是下拉操作
                     final float yDiff = mInitialDownY - y;
                     if (yDiff > mTouchSlop && !mIsBeingDragged && !canChildScrollDown()) {
-                        mInitialMotionY = mInitialDownY + mTouchSlop;
+                        mInitialMotionY = mInitialDownY - yDiff;
                         mLastMotionY = mInitialMotionY;
                         mIsBeingDragged = true;
                     }
@@ -409,6 +409,19 @@ public class SlidingLayout extends FrameLayout{
         }
         //消费触摸
         return true;
+    }
+
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean b) {
+        // if this is a List < L or another view that doesn't support nested
+        // scrolling, ignore this request so that the vertical scroll event
+        // isn't stolen
+        if ((android.os.Build.VERSION.SDK_INT < 21 && mTargetView instanceof AbsListView)
+                || (mTargetView != null && !ViewCompat.isNestedScrollingEnabled(mTargetView))) {
+            // Nope.
+        } else {
+            super.requestDisallowInterceptTouchEvent(b);
+        }
     }
 
     public void setSlidingMode(int mode){
